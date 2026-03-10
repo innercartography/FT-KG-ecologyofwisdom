@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontier Tower — A Vertical Village for Civilization Builders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090b;
+  --s1: #0f1218;
+  --s2: #151b25;
+  --b: rgba(255,255,255,0.07);
+  --bh: rgba(240,192,64,0.35);
+  --t: #b8c4d0;
+  --td: #4a5a6a;
+  --tb: #eef2f7;
+  --gold: #f0c040;
+  --g2: #c8943a;
+  --gg: rgba(240,192,64,0.12);
+  --red: #ff4040;
+  --cyan: #40c8ff;
+  --green: #40ff96;
+  --purple: #9060ff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  background:var(--bg); color:var(--t);
+  font-family:'IBM Plex Mono',monospace; font-size:13px; line-height:1.75;
+  overflow-x:hidden; cursor:crosshair;
+}
+body::after {
+  content:''; position:fixed; inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:999; opacity:0.5;
+}
+#prog { position:fixed; top:0; left:0; height:2px; background:linear-gradient(90deg,var(--gold),var(--g2)); z-index:1000; transition:width .1s; box-shadow:0 0 10px var(--gold); }
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  padding:0 48px; height:56px; display:flex; align-items:center; justify-content:space-between;
+  background:rgba(8,9,11,.92); border-bottom:1px solid var(--b); backdrop-filter:blur(16px);
+}
+.nlogo { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.15em; color:var(--gold); }
+.nlinks { display:flex; gap:28px; list-style:none; }
+.nlinks a { font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--td); text-decoration:none; transition:color .2s; }
+.nlinks a:hover { color:var(--gold); }
+.npill { font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:6px 14px; border:1px solid var(--g2); color:var(--gold); background:none; cursor:pointer; font-family:'IBM Plex Mono',monospace; transition:all .2s; text-decoration:none; }
+.npill:hover { background:var(--gold); color:var(--bg); }
+.hero {
+  min-height:100vh; display:flex; flex-direction:column; justify-content:flex-end;
+  padding:0 48px 80px; position:relative; overflow:hidden;
+}
+#hc { position:absolute; inset:0; width:100%; height:100%; }
+.hbg {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(100px,17vw,240px);
+  color:rgba(240,192,64,.022); letter-spacing:.05em; white-space:nowrap;
+  pointer-events:none; user-select:none;
+}
+.hcon { position:relative; z-index:2; max-width:820px; width:100%; }
+.hey { display:flex; align-items:center; gap:16px; margin-bottom:24px; }
+.heyline { width:48px; height:1px; background:var(--gold); }
+.heytxt { font-size:9px; letter-spacing:.35em; text-transform:uppercase; color:var(--gold); }
+.ht { font-family:'Bebas Neue',sans-serif; font-size:clamp(64px,10vw,140px); line-height:.92; color:var(--tb); letter-spacing:.02em; margin-bottom:4px; animation:su 1s cubic-bezier(.16,1,.3,1) both; }
+.ht .acc { color:var(--gold); }
+.hs { font-family:'Playfair Display',serif; font-size:clamp(17px,2.4vw,24px); font-style:italic; color:var(--td); margin-bottom:36px; animation:su 1s .1s cubic-bezier(.16,1,.3,1) both; }
+.hd { font-size:13px; color:var(--td); max-width:560px; line-height:1.9; margin-bottom:40px; animation:su 1s .2s cubic-bezier(.16,1,.3,1) both; word-break:break-word; overflow-wrap:break-word; }
+.hd strong { color:var(--t); }
+.hstats { display:flex; gap:40px; margin-bottom:40px; animation:su 1s .3s cubic-bezier(.16,1,.3,1) both; }
+.hsv { font-family:'Bebas Neue',sans-serif; font-size:40px; color:var(--gold); line-height:1; }
+.hsl { font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--td); margin-top:4px; }
+.hcta { display:flex; gap:12px; flex-wrap:wrap; animation:su 1s .4s cubic-bezier(.16,1,.3,1) both; }
+@keyframes su { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+.btn { display:inline-flex; align-items:center; gap:8px; padding:12px 22px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.15em; text-transform:uppercase; text-decoration:none; border:1px solid; cursor:pointer; transition:all .2s; background:none; }
+.btng { border-color:var(--gold); color:var(--gold); }
+.btng:hover { background:var(--gold); color:var(--bg); box-shadow:0 0 24px rgba(240,192,64,.3); }
+.btnd { border-color:var(--b); color:var(--td); }
+.btnd:hover { border-color:var(--td); color:var(--t); }
+section { position:relative; z-index:1; padding:100px 48px; }
+.con { max-width:1140px; margin:0 auto; }
+.eye { display:flex; align-items:center; gap:12px; font-size:9px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin-bottom:16px; }
+.eye::before { content:''; width:28px; height:1px; background:var(--gold); }
+.stit { font-family:'Bebas Neue',sans-serif; font-size:clamp(42px,6vw,80px); color:var(--tb); line-height:.95; letter-spacing:.02em; margin-bottom:24px; }
+.stit .go { color:var(--gold); }
+.sbody { color:var(--td); font-size:13px; line-height:1.9; max-width:660px; }
+.sbody p { margin-bottom:14px; }
+.sbody strong { color:var(--t); }
+.div { width:100%; height:1px; background:linear-gradient(90deg,transparent,var(--bh),transparent); }
+.two { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; }
+.ibox { background:var(--s2); border:1px solid var(--b); border-left:3px solid var(--gold); padding:18px 20px; margin:14px 0; }
+.ibox p { font-size:12px; color:var(--td); margin:0; line-height:1.8; }
+.ibox strong { color:var(--gold); }
+/* FLOOR STACK */
+.bwrap { border:1px solid var(--b); margin-top:56px; }
+.frow {
+  display:grid; grid-template-columns:60px 120px 1fr 100px;
+  border-bottom:1px solid var(--b); min-height:80px; cursor:pointer;
+  transition:background .2s; position:relative; overflow:hidden;
+}
+.frow:last-child { border-bottom:none; }
+.frow:hover { background:var(--s2); }
+.frow.act { background:var(--s2); }
+.frow::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:2px;
+  background:var(--fc,var(--gold)); transform:scaleY(0); transform-origin:bottom; transition:transform .3s;
+}
+.frow:hover::before,.frow.act::before { transform:scaleY(1); }
+.fn { display:flex; align-items:center; justify-content:center; border-right:1px solid var(--b); font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--td); }
+.frow.act .fn { color:var(--fc,var(--gold)); }
+.ft { display:flex; align-items:center; padding:12px 16px; border-right:1px solid var(--b); }
+.ftb { font-size:8px; letter-spacing:.12em; text-transform:uppercase; padding:3px 8px; border:1px solid; white-space:nowrap; }
+.fb { padding:16px 24px; display:flex; flex-direction:column; justify-content:center; }
+.fname { font-family:'Playfair Display',serif; font-size:17px; color:var(--tb); margin-bottom:4px; }
+.frow.act .fname { color:var(--fc,var(--gold)); }
+.fdesc { font-size:11px; color:var(--td); line-height:1.6; }
+.ftags { display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.ftg { font-size:8px; letter-spacing:.1em; text-transform:uppercase; padding:2px 7px; border:1px solid var(--b); color:var(--td); background:var(--s2); }
+.fm { padding:16px 20px; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; border-left:1px solid var(--b); }
+.fmv { font-family:'Bebas Neue',sans-serif; font-size:30px; line-height:1; }
+.fml { font-size:8px; letter-spacing:.12em; text-transform:uppercase; color:var(--td); }
+/* FLOOR DETAIL */
+.fdet { background:var(--s2); border-top:none; border:1px solid; padding:32px; display:none; animation:exp .3s ease both; }
+.fdet.open { display:block; }
+@keyframes exp { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.fdgrid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:22px; }
+.fdct { font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.fdct::after { content:''; flex:1; height:1px; background:var(--b); }
+.fdl { list-style:none; }
+.fdl li { padding:6px 0; border-bottom:1px solid var(--b); font-size:11px; color:var(--td); line-height:1.5; display:flex; gap:9px; }
+.fdl li::before { content:'→'; color:var(--gold); flex-shrink:0; }
+.fdl li strong { color:var(--t); }
+.fdl li:last-child { border-bottom:none; }
+.fdq { grid-column:1/-1; border-left:2px solid var(--gold); padding:13px 18px; background:var(--gg); font-family:'Playfair Display',serif; font-style:italic; font-size:15px; color:var(--tb); margin-top:6px; }
+/* GRAPH */
+.gcont { position:relative; border:1px solid var(--b); background:var(--s1); overflow:hidden; margin-top:48px; }
+#gc { width:100%; height:560px; display:block; cursor:crosshair; }
+.gui { position:absolute; top:16px; left:16px; display:flex; flex-direction:column; gap:6px; }
+.gb { width:30px; height:30px; background:var(--s2); border:1px solid var(--b); color:var(--td); font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; font-family:'IBM Plex Mono',monospace; }
+.gb:hover { border-color:var(--gold); color:var(--gold); }
+.gleg { position:absolute; bottom:16px; right:16px; display:flex; flex-wrap:wrap; gap:10px; max-width:300px; justify-content:flex-end; }
+.gli { display:flex; align-items:center; gap:5px; font-size:9px; letter-spacing:.08em; color:var(--td); }
+.gld { width:7px; height:7px; border-radius:50%; }
+.ghint { position:absolute; bottom:16px; left:16px; font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--td); }
+#gtip { position:fixed; background:var(--s1); border:1px solid var(--bh); padding:10px 14px; font-size:11px; color:var(--t); pointer-events:none; z-index:800; display:none; max-width:220px; box-shadow:0 4px 24px rgba(0,0,0,.5); }
+/* PHIL TABS */
+.ptabs { display:flex; border-bottom:1px solid var(--b); margin-top:48px; overflow-x:auto; }
+.ptab { padding:12px 18px; font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--td); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; transition:all .2s; background:none; border-top:none; border-left:none; border-right:none; font-family:'IBM Plex Mono',monospace; }
+.ptab:hover { color:var(--t); }
+.ptab.act { color:var(--gold); border-bottom-color:var(--gold); }
+.ppanel { display:none; padding:40px 0; }
+.ppanel.act { display:block; }
+.ppgrid { display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start; }
+.pmain { font-size:13px; color:var(--td); line-height:1.9; }
+.pmain p { margin-bottom:14px; }
+.pmain strong { color:var(--t); }
+.pq { border-left:2px solid var(--gold); padding:15px 20px; background:var(--gg); font-family:'Playfair Display',serif; font-style:italic; font-size:16px; color:var(--tb); margin:20px 0; line-height:1.5; }
+.pc { background:var(--s1); border:1px solid var(--b); padding:18px; margin-bottom:2px; }
+.pcl { font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin-bottom:7px; }
+.pct { font-size:11px; color:var(--td); line-height:1.7; }
+.pct strong { color:var(--t); }
+/* ARCH */
+.astack { margin-top:48px; display:flex; flex-direction:column; gap:2px; }
+.alayer { display:grid; grid-template-columns:180px 1fr; border:1px solid var(--b); overflow:hidden; transition:border-color .2s; }
+.alayer:hover { border-color:var(--bh); }
+.aleft { background:var(--s2); padding:22px 18px; border-right:1px solid var(--b); display:flex; flex-direction:column; justify-content:center; }
+.anum { font-family:'Bebas Neue',sans-serif; font-size:48px; color:var(--bh); line-height:1; }
+.aln { font-family:'Playfair Display',serif; font-size:14px; color:var(--tb); margin-bottom:3px; }
+.alt { font-size:9px; letter-spacing:.15em; text-transform:uppercase; color:var(--gold); }
+.aright { padding:22px 26px; }
+.artit { font-family:'Playfair Display',serif; font-size:19px; color:var(--tb); margin-bottom:9px; }
+.ardesc { font-size:12px; color:var(--td); line-height:1.8; }
+.chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:10px; }
+.chip { font-size:9px; padding:2px 9px; background:var(--s2); border:1px solid var(--b); color:var(--td); letter-spacing:.04em; }
+/* COLIVING */
+.cgrid { display:grid; grid-template-columns:1fr 1fr; gap:2px; margin-top:48px; background:var(--b); border:1px solid var(--b); }
+.ccard { background:var(--s1); padding:38px 30px; position:relative; overflow:hidden; transition:background .3s; }
+.ccard:hover { background:var(--s2); }
+.ccn { font-family:'Bebas Neue',sans-serif; font-size:80px; color:rgba(240,192,64,.04); line-height:.85; position:absolute; top:16px; right:18px; pointer-events:none; user-select:none; }
+.cct { font-family:'Playfair Display',serif; font-size:19px; color:var(--tb); margin-bottom:11px; position:relative; }
+.ccb { font-size:12px; color:var(--td); line-height:1.9; position:relative; }
+.cctag { display:inline-block; font-size:9px; letter-spacing:.15em; text-transform:uppercase; padding:3px 8px; border:1px solid var(--g2); color:var(--gold); margin-bottom:13px; }
+/* MVP */
+.mcols { display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:48px; }
+.mch { font-size:9px; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+.mch::after { content:''; flex:1; height:1px; background:var(--b); }
+.mitems { display:flex; flex-direction:column; gap:2px; }
+.mi { padding:13px 15px; background:var(--s1); border:1px solid var(--b); font-size:12px; color:var(--td); line-height:1.6; display:flex; gap:11px; transition:border-color .2s; }
+.mi:hover { border-color:var(--bh); }
+.mi::before { content:'→'; color:var(--gold); flex-shrink:0; }
+.mi strong { color:var(--t); }
+/* MANIFESTO */
+.man { padding:120px 48px; text-align:center; background:linear-gradient(180deg,var(--bg),var(--s1) 50%,var(--bg)); position:relative; overflow:hidden; }
+.man::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:700px; height:700px; background:radial-gradient(circle,rgba(240,192,64,.04),transparent 70%); pointer-events:none; }
+.mantt { font-family:'Bebas Neue',sans-serif; font-size:clamp(48px,8vw,96px); color:var(--tb); line-height:.95; letter-spacing:.02em; margin-bottom:30px; position:relative; }
+.mantt .go { color:var(--gold); }
+.manb { font-family:'Playfair Display',serif; font-size:clamp(16px,2vw,21px); font-style:italic; color:var(--td); max-width:740px; margin:0 auto 44px; line-height:1.7; position:relative; }
+/* DAEMON */
+.dwrap { position:fixed; bottom:24px; right:24px; z-index:600; width:340px; }
+.dbtn { width:50px; height:50px; background:var(--gold); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:20px; margin-left:auto; box-shadow:0 0 24px rgba(240,192,64,.4); transition:all .3s; font-family:'IBM Plex Mono',monospace; color:var(--bg); font-weight:bold; }
+.dbtn:hover { box-shadow:0 0 40px rgba(240,192,64,.7); transform:scale(1.05); }
+.dbox { background:var(--s1); border:1px solid var(--bh); box-shadow:0 8px 48px rgba(0,0,0,.7); margin-bottom:12px; display:none; flex-direction:column; max-height:400px; }
+.dbox.open { display:flex; }
+.dhead { padding:11px 15px; border-bottom:1px solid var(--b); display:flex; align-items:center; gap:9px; }
+.ddot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:bl 2s infinite; }
+@keyframes bl { 0%,100%{opacity:1} 50%{opacity:.3} }
+.dtit { font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--tb); }
+.dmsgs { flex:1; overflow-y:auto; padding:13px 15px; display:flex; flex-direction:column; gap:8px; min-height:110px; }
+.dm { padding:8px 11px; font-size:11px; line-height:1.6; max-width:88%; }
+.dm.sys { background:var(--s2); border:1px solid var(--b); border-left:2px solid var(--gold); color:var(--td); align-self:flex-start; }
+.dm.usr { background:rgba(240,192,64,.08); border:1px solid rgba(240,192,64,.2); color:var(--t); align-self:flex-end; }
+.dpills { padding:0 15px 9px; display:flex; flex-wrap:wrap; gap:5px; }
+.dp { font-size:9px; padding:3px 9px; border:1px solid var(--b); color:var(--td); cursor:pointer; transition:all .15s; background:none; font-family:'IBM Plex Mono',monospace; letter-spacing:.04em; }
+.dp:hover { border-color:var(--gold); color:var(--gold); }
+.drow { padding:9px 15px; border-top:1px solid var(--b); display:flex; gap:6px; }
+.din { flex:1; background:var(--s2); border:1px solid var(--b); color:var(--t); padding:7px 10px; font-family:'IBM Plex Mono',monospace; font-size:11px; outline:none; }
+.din:focus { border-color:var(--gold); }
+.dsend { padding:7px 11px; background:none; border:1px solid var(--gold); color:var(--gold); cursor:pointer; font-family:'IBM Plex Mono',monospace; font-size:11px; transition:all .15s; }
+.dsend:hover { background:var(--gold); color:var(--bg); }
+footer { padding:36px 48px; border-top:1px solid var(--b); display:flex; align-items:center; justify-content:space-between; position:relative; z-index:1; }
+.fl { font-size:10px; letter-spacing:.1em; color:var(--td); }
+.fr { display:flex; gap:22px; }
+.fr a { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--td); text-decoration:none; transition:color .2s; }
+.fr a:hover { color:var(--gold); }
+.rev { opacity:0; transform:translateY(20px); transition:opacity .6s,transform .6s; }
+.rev.in { opacity:1; transform:translateY(0); }
+@media (max-width:900px) {
+  nav{padding:0 16px;} .nlinks{display:none;} section{padding:60px 20px;} .hero{padding:0 20px 60px;}
+  .frow{grid-template-columns:48px 1fr;} .ft,.fm{display:none;}
+  .two,.mcols,.cgrid,.ppgrid,.alayer{grid-template-columns:1fr;}
+  .fdgrid{grid-template-columns:1fr;}
+  .dwrap{width:calc(100vw - 24px);right:12px;}
+  footer{flex-direction:column;gap:14px;text-align:center;}
+  .hstats{gap:20px;flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<div id="gtip"></div>
+<nav>
+  <div class="nlogo">FRONTIER TOWER</div>
+  <ul class="nlinks">
+    <li><a href="#building">The Building</a></li>
+    <li><a href="#graph">Knowledge Graph</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#coliving">Coliving</a></li>
+    <li><a href="#mvp">Vision</a></li>
+  </ul>
+  <a href="https://bonfires.ai" class="npill" target="_blank">Bonfires.ai →</a>
+</nav>
+
+<section class="hero">
+  <canvas id="hc"></canvas>
+  <div class="hbg">FRONTIER</div>
+  <div class="hcon">
+    <div class="hey"><div class="heyline"></div><div class="heytxt">San Francisco · Bonfires.ai × Frontier Tower</div></div>
+    <h1 class="ht">A VERTICAL<br><span class="acc">VILLAGE</span><br>FOR BUILDERS</h1>
+    <p class="hs">Not a coworking space. A federated knowledge ecology for civilization-scale ideas.</p>
+    <p class="hd">16 floors. Each sovereign. Each a knowledge garden with its own shard, community, and ontology. Connected through bridges — never by force. The building as a composable intelligence layer accessible across phone, desktop, VR, and XR.<br><br><strong>San Francisco is just the beginning.</strong></p>
+    <div class="hstats">
+      <div><div class="hsv">16</div><div class="hsl">Floors</div></div>
+      <div><div class="hsv">6</div><div class="hsl">System Layers</div></div>
+      <div><div class="hsv" style="font-size:28px;padding-top:6px;letter-spacing:.05em">OPEN</div><div class="hsl">Possible Bridges</div></div>
+      <div><div class="hsv">1</div><div class="hsl">Constitution</div></div>
+    </div>
+    <div class="hcta">
+      <a href="#building" class="btn btng">Explore the Building ↓</a>
+      <a href="#graph" class="btn btnd">Knowledge Graph</a>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="building">
+  <div class="con">
+    <div class="eye">The Building</div>
+    <div class="two">
+      <div>
+        <h2 class="stit">SIXTEEN<br><span class="go">SOVEREIGN</span><br>GARDENS</h2>
+        <div class="sbody">
+          <p>Each floor is a distinct epistemic unit — its own community, focus domain, and knowledge shard. No floor is subordinate to another. The building becomes intelligent through <strong>bridges, not flattening</strong>.</p>
+          <p>Click any floor to expand its knowledge nodes, bridge connections, and core themes. The daemon (bottom right ⟁) navigates between floors, surfaces collaborators, and detects cross-floor opportunities.</p>
+        </div>
+      </div>
+      <div>
+        <div class="ibox"><p><strong>Shard principle:</strong> Each floor maintains a private knowledge graph. It decides what to publish to the building-wide meta-layer. The public graph is a negotiated bouquet — never the full substrate.</p></div>
+        <div class="ibox" style="border-left-color:var(--cyan)"><p><strong>Daemon principle:</strong> Navigation agents translate between floor ontologies. "In F9, 'intelligence' means multi-agent AI. In F14, it means collective wisdom. Adjacent, not identical."</p></div>
+        <div class="ibox" style="border-left-color:var(--purple)"><p><strong>Contradiction principle:</strong> When two floors define the same concept differently, that tension is <em>data</em>. It becomes a high-cost alignment zone — an invitation for inquiry, not an error to clean up.</p></div>
+      </div>
+    </div>
+    <div class="bwrap rev" id="floorList"></div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="graph">
+  <div class="con">
+    <div class="eye">Live Knowledge Graph</div>
+    <h2 class="stit">THE NETWORK<br><span class="go">MADE VISIBLE</span></h2>
+    <div class="sbody"><p>An interactive view of Frontier Tower's semantic layer. Floors, themes, projects, and daemons rendered as living graph topology. Hover nodes for context. Click to inspect in the daemon. Drag to navigate.</p></div>
+    <div class="gcont rev">
+      <canvas id="gc"></canvas>
+      <div class="gui">
+        <button class="gb" onclick="rg()" title="Reset">↺</button>
+        <button class="gb" onclick="zi()" title="Zoom in">+</button>
+        <button class="gb" onclick="zo()" title="Zoom out">−</button>
+        <button class="gb" id="pb" onclick="tp()" title="Physics">⏸</button>
+      </div>
+      <div class="gleg">
+        <div class="gli"><div class="gld" style="background:#f0c040"></div>Floor</div>
+        <div class="gli"><div class="gld" style="background:#40c8ff"></div>Theme</div>
+        <div class="gli"><div class="gld" style="background:#40ff96"></div>Project</div>
+        <div class="gli"><div class="gld" style="background:#ff60a0"></div>Daemon</div>
+        <div class="gli"><div class="gld" style="background:#9060ff"></div>Bridge</div>
+      </div>
+      <div class="ghint">DRAG · HOVER · CLICK TO INSPECT</div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="architecture">
+  <div class="con">
+    <div class="eye">System Architecture</div>
+    <h2 class="stit">SIX LAYERS,<br><span class="go">ONE ECOLOGY</span></h2>
+    <div class="sbody"><p>Not a top-down taxonomy. Nested epistemic layers designed to preserve sovereignty at every level while enabling coherent emergence at the meta-layer.</p></div>
+    <div class="astack rev">
+      <div class="alayer">
+        <div class="aleft"><div class="anum">01</div><div class="aln">Sovereign Shards</div><div class="alt">Foundation</div></div>
+        <div class="aright"><div class="artit">Each Floor Keeps Its Own Garden</div><div class="ardesc">Personal, team, floor, and community knowledge graphs. Private by default. Each shard retains full autonomy over its ontology, naming conventions, and visibility policies. The floor's intelligence lives here first — before anything is shared.</div><div class="chips"><span class="chip">personal shard</span><span class="chip">team shard</span><span class="chip">floor shard</span><span class="chip">access policies</span><span class="chip">community shard</span></div></div>
+      </div>
+      <div class="alayer">
+        <div class="aleft"><div class="anum" style="color:rgba(64,200,255,.3)">02</div><div class="aln">Scoped Assertions</div><div class="alt" style="color:var(--cyan)">Semantics</div></div>
+        <div class="aright"><div class="artit">Claims Carry Their Context</div><div class="ardesc">Statements are tagged by source, frame, ontology, or context. "AI" means different things on F9 (multi-agent systems) and F14 (collective intelligence). Both are valid. The system holds both without forcing resolution.</div><div class="chips"><span class="chip">named graphs</span><span class="chip">contextual scope</span><span class="chip">ontology tagging</span><span class="chip">qualified assertions</span></div></div>
+      </div>
+      <div class="alayer">
+        <div class="aleft"><div class="anum" style="color:rgba(64,255,150,.3)">03</div><div class="aln">Daemon Layer</div><div class="alt" style="color:var(--green)">Navigation</div></div>
+        <div class="aright"><div class="artit">Epistemic Diplomats, Not Search Engines</div><div class="ardesc">Daemons navigate trust, detect contradictions, translate between floor ontologies, and generate quests. A daemon might say: "F8 (Neuro/Biotech) and F11 (Longevity) share 7 themes with moderate translation cost. There's a dormant bridge worth activating."</div><div class="chips"><span class="chip">orientation</span><span class="chip">matchmaking</span><span class="chip">translation</span><span class="chip">memory</span><span class="chip">quest generation</span></div></div>
+      </div>
+      <div class="alayer">
+        <div class="aleft"><div class="anum" style="color:rgba(255,107,74,.3)">04</div><div class="aln">Shared Graph</div><div class="alt" style="color:#ff6b4a">Coordination</div></div>
+        <div class="aright"><div class="artit">The Bouquet, Not the Garden</div><div class="ardesc">Only intentionally disclosed nodes and bridges appear here. Never the full substrate. Consent-based, revocable, and explicitly incomplete — a negotiated commons that changes as floors choose to reveal or retract.</div><div class="chips"><span class="chip">bridge concepts</span><span class="chip">cross-floor paths</span><span class="chip">shared events</span><span class="chip">opportunity zones</span><span class="chip">event trails</span></div></div>
+      </div>
+      <div class="alayer">
+        <div class="aleft"><div class="anum" style="color:rgba(144,96,255,.3)">05</div><div class="aln">Meta-Graph</div><div class="alt" style="color:var(--purple)">Graph of Graphs</div></div>
+        <div class="aright"><div class="artit">Translation Layer, Not Throne</div><div class="ardesc">A graph of ontologies, mappings, tensions, and alignments. It holds contradictions as data using paraconsistent logic — cross-floor disagreements become inquiry zones with quantified translation costs rather than system errors.</div><div class="chips"><span class="chip">ontology alignment</span><span class="chip">tension mapping</span><span class="chip">paraconsistent logic</span><span class="chip">cost functions</span></div></div>
+      </div>
+      <div class="alayer">
+        <div class="aleft"><div class="anum" style="color:rgba(240,192,64,.4)">06</div><div class="aln">Game Layer</div><div class="alt">Embodiment</div></div>
+        <div class="aright"><div class="artit">IRL Grounds the System</div><div class="ardesc">Real-world quests, physical presence, tacit knowledge exchange — these ground the entire stack against becoming a Baudrillardian simulacrum. The Ethereum L2 (coming) makes participation legible and composable. Every badge earned in a real conversation beats ten graph clicks.</div><div class="chips"><span class="chip">IRL quests</span><span class="chip">tacit exchange</span><span class="chip">ETH L2 governance</span><span class="chip">physical unlocks</span><span class="chip">place rituals</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="philosophy">
+  <div class="con">
+    <div class="eye">Philosophical Substrate</div>
+    <h2 class="stit">NOT DECOR —<br><span class="go">DESIGN LOGIC</span></h2>
+    <div class="sbody"><p>Each tradition below contributed a specific structural insight to the architecture. Scaffolding, not branding.</p></div>
+    <div class="ptabs rev">
+      <button class="ptab act" onclick="st(this,'p1')">Nāgārjuna</button>
+      <button class="ptab" onclick="st(this,'p2')">Paraconsistency</button>
+      <button class="ptab" onclick="st(this,'p3')">Deleuze + Guattari</button>
+      <button class="ptab" onclick="st(this,'p4')">Baudrillard</button>
+      <button class="ptab" onclick="st(this,'p5')">Wilson / Gurdjieff</button>
+      <button class="ptab" onclick="st(this,'p6')">Chalmers + Lokas</button>
+    </div>
+    <div>
+      <div class="ppanel act" id="p1">
+        <div class="ppgrid">
+          <div class="pmain">
+            <div class="pq">"Emptiness is the relinquishing of all views. For whomever emptiness is a view, that one has achieved nothing."</div>
+            <p>Nāgārjuna's Mādhyamaka (2nd century CE) provides the core anti-reification principle. His tetralemma — rejecting all four logical extremes of is / is not / both / neither — is a method for preventing the meta-layer from hardening into dogma.</p>
+            <p>Applied to Frontier Tower: <strong>even the meta-ontology must stay humble.</strong> No category is ultimate. Every bridge is partial. Dependent arising means every node's meaning is relational — never self-contained.</p>
+            <p>Compared to Derrida: both dismantle fixed meaning through radical negation. Nāgārjuna's project is soteriological — emptiness liberates. Derrida's deconstruction is infinite, immanent, no promised liberation. Compared to Nietzsche: peaceful cessation of grasping vs. explosive affirmation of becoming. Their tension maps onto daemon (translator) vs. game layer (creative force).</p>
+          </div>
+          <div>
+            <div class="pc"><div class="pcl">Dependent Arising</div><div class="pct">Phenomena lack inherent existence; everything arises through conditions. <strong>A node's meaning is always relational</strong> — change its connections and you change what it means.</div></div>
+            <div class="pc"><div class="pcl">The Tetralemma</div><div class="pct">Is / Is not / Both / Neither — all four rejected. <strong>Contradictions reveal the limits of frames</strong>, not failures of logic. The building uses this to tolerate tension without panic.</div></div>
+            <div class="pc"><div class="pcl">Nāgārjuna vs. Derrida</div><div class="pct">Both dismantle essentialism. Nāgārjuna: liberation via emptiness. Derrida: endless deferral, no outside the text. Complementary, not equivalent.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ppanel" id="p2">
+        <div class="ppgrid">
+          <div class="pmain">
+            <p>Classical logic follows the principle of explosion: from a contradiction, <em>anything</em> follows, making the system trivial. Paraconsistent logics reject this. Contradictions can exist without detonating the entire system.</p>
+            <p>In Frontier Tower's meta-layer, when F9 (AI Systems) and F14 (Human Flourishing) define "agency" in ways that formally contradict — the system doesn't halt. It flags a high-cost alignment zone and surfaces the tension as an inquiry site.</p>
+            <div class="pq">Inconsistency is tolerated in a controlled way — inferences remain local and relevant.</div>
+            <p>Graham Priest's Logic of Paradox (LP) and Belnap's four-valued FDE handle over- and under-determined information gracefully. Polysemous concepts — "intelligence," "health," "community" — hold multiple values across floors without collapse. <strong>Translation cost is quantified, not hidden.</strong></p>
+          </div>
+          <div>
+            <div class="pc"><div class="pcl">Within one floor</div><div class="pct">Classical logic applies. Non-contradiction enforced where it matters for sharp local reasoning.</div></div>
+            <div class="pc"><div class="pcl">Across floors</div><div class="pct">Paraconsistent meta-reasoning: "Under F9's ontology, P. Under F14's, ¬P. The tension is informative, not fatal."</div></div>
+            <div class="pc"><div class="pcl">Dialetheism connection</div><div class="pct">Graham Priest's strong dialetheism — some contradictions are genuinely true — aligns with Nāgārjuna's tetralemma via "truth gluts" at perspective boundaries.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ppanel" id="p3">
+        <div class="ppgrid">
+          <div class="pmain">
+            <p>A Thousand Plateaus' rhizome — acentric, connective multiplicity where any point connects to any other — is the closest existing metaphor for Frontier Tower's floor-shard architecture. Not a tree but lateral proliferation: routes, relays, intensities, temporary assemblages.</p>
+            <div class="pq">"Any point of a rhizome can be connected to anything other, and must be."</div>
+            <p>Guattari's ecosophy adds three registers: mental, social, environmental — mapping to F14 (flourishing), F16 (d/acc lounge), and the Splat Guild / bioregional layer. His <em>chaosmosis</em> — sudden non-conceptual breakthroughs amid complexity — maps to the game layer's IRL quest moments: the cold plunge on F5 as a chaosmosis catalyst.</p>
+          </div>
+          <div>
+            <div class="pc"><div class="pcl">Rhizome Principles</div><div class="pct">Connection, heterogeneity, multiplicity, asignifying rupture, cartography. The floor stack is a map, not a tracing. Any floor to any floor.</div></div>
+            <div class="pc"><div class="pcl">Guattari's Chaosmosis</div><div class="pct">Subjectivity emerging via breakthrough moments. A conversation in the d/acc lounge (F16) or a hackathon on F2 becomes the trigger. IRL quests create these moments.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ppanel" id="p4">
+        <div class="ppgrid">
+          <div class="pmain">
+            <p>Baudrillard's simulacra describes the exact failure mode this architecture is designed to prevent: the four stages from faithful copy to pure self-referential simulation.</p>
+            <div class="pq">"The simulacrum is never that which conceals the truth — it is the truth which conceals that there is none."</div>
+            <p>If the public graph becomes too polished, too gamified, too totalizing — it risks becoming a simulacrum of the community. <strong>The building's lived intelligence starts replacing itself with its own representation.</strong> Gamify badly → people optimize for symbolic graph progress instead of real-world wisdom.</p>
+            <p>The Ethereum L2 governance layer, the IRL quests, the cold plunge on F5, the hackathon space on F2 — these are the anti-Baudrillard. Real presence, real friction, real consequence. The physical building grounds the graph.</p>
+          </div>
+          <div>
+            <div class="pc"><div class="pcl">Four Stages</div><div class="pct">1. Faithful copy → 2. Distorted copy → 3. Copy without original → 4. Pure simulation. Stage 4 is the failure mode for knowledge graphs.</div></div>
+            <div class="pc"><div class="pcl">The Antidote</div><div class="pct">The F5 gym. The F7 makerspace. The F16 coffee conversation. Real-world friction that can't be simulated into a badge. This is why IRL is Layer 6.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ppanel" id="p5">
+        <div class="ppgrid">
+          <div class="pmain">
+            <p>Robert Anton Wilson's central insight in <em>Prometheus Rising</em> is uncomfortable in its simplicity: most of what you experience as "reality" is a tunnel — a bounded perceptual filter shaped by biology, conditioning, and accident. The eight-circuit model isn't a map of floors or personality types. It's a map of the <strong>ways humans systematically mistake their tunnel for the territory.</strong></p>
+            <p>Most people operate entirely within their tunnels without knowing they have one. The circuits run automatically. Gurdjieff called this "waking sleep" — the state of being fully reactive, fully mechanical, fully convinced you are awake and choosing. Self-remembering is the crack in that: a moment of simultaneous awareness of what you're doing and the fact that you're doing it. It interrupts the automation just long enough to notice there are other tunnels.</p>
+            <div class="pq">Every floor at Frontier Tower is a concentrated reality tunnel — a community that has organized its perception, language, and priorities around a particular set of problems. The building doesn't flatten those tunnels. It makes them visible to each other.</div>
+            <p>Wilson was careful to note the model is itself a tunnel. The eight circuits aren't a final map — they're a set of lenses that, when held lightly, reveal how much of what feels like "objective reality" is actually locally constructed. The same move applies to the knowledge graph: <strong>the map is useful precisely because it doesn't pretend to be the territory.</strong></p>
+          </div>
+          <div>
+            <div class="pc"><div class="pcl">Reality Tunnels</div><div class="pct">Every person, floor, and community operates through a bounded perceptual filter. The shard preserves that filter. The daemon makes the filter visible — to its owner and to others.</div></div>
+            <div class="pc"><div class="pcl">Waking Sleep</div><div class="pct">Gurdjieff's term for mechanical, unreflective operation. Most knowledge work happens in this state. The quest system and IRL encounters are designed to interrupt it — briefly, productively.</div></div>
+            <div class="pc"><div class="pcl">Map ≠ Territory</div><div class="pct">Wilson insisted his own model was provisional. The knowledge graph inherits this posture: useful, never final. High-cost alignment zones are where two maps diverge — and that's exactly where the interesting work happens.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="ppanel" id="p6">
+        <div class="ppgrid">
+          <div class="pmain">
+            <p>David Chalmers' <em>Reality+</em> argues virtual reality is genuine reality. Virtual objects are real digital entities — causally potent, mind-independent within their rules, experientially genuine. This validates the XR interface layer as a legitimate knowledge environment, not a degraded simulation.</p>
+            <p>The Sanskrit <em>lokas</em> — layered planes of existence with distinct levels of consciousness and materiality — provide an ancient blueprint. Frontier Tower's interface stack (phone → desktop → AR → VR → full XR) is not just different screen sizes. Each is a different epistemic register, a different loka.</p>
+            <div class="pq">Each interface mode is a different loka — a different resolution of meaning, with different affordances for knowledge-making.</div>
+          </div>
+          <div>
+            <div class="pc"><div class="pcl">Lokas → Interface Stack</div><div class="pct">Phone (ground/Bhuloka) → Desktop (Svarga) → AR overlay (Maharloka) → VR (Brahmaloka). Each a genuine epistemic plane, not just a viewport.</div></div>
+            <div class="pc"><div class="pcl">Chalmers' Claim</div><div class="pct">Virtual objects are real digital entities. The XR layer of Frontier Tower is as real as the physical floors — different matter, same ontological status.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="coliving">
+  <div class="con">
+    <div class="eye">The Coliving Layer</div>
+    <h2 class="stit">THE INTER-CITY<br><span class="go">NETWORK SOCIETY</span></h2>
+    <div class="sbody"><p>The coliving component — a superhero hotel blocks away from the tower — isn't an amenity. It's the seed of a global network society: cypherpunk values, censorship-resistant governance, and community self-determination encoded from day one.</p></div>
+    <div class="cgrid rev">
+      <div class="ccard"><div class="ccn">01</div><span class="cctag">Origin Story</span><div class="cct">From Leipzig, 2013</div><div class="ccb">Frontier Tower's founders built their first coliving house in Leipzig — Ost-Apotheke, a community of 35 curious students, artists, and musicians. Techno club in the basement, bar on the first floor, hostel on the second. All other floors: living together. That community has governed itself for 9 years without intervention. San Francisco is the next proof of concept.</div></div>
+      <div class="ccard"><div class="ccn">02</div><span class="cctag">The Constitution</span><div class="cct">Designed to Make Itself Obsolete</div><div class="ccb">The founding team is writing a constitution governing all aspects of the vertical village — then handing decision-making to citizens when ready. For this democracy to function, Frontier Tower is building its own Ethereum L2: censorship-resistant, permissionless, owned by the community. Every vote, interaction, and governance action lives on-chain.</div></div>
+      <div class="ccard"><div class="ccn">03</div><span class="cctag">Global Expansion</span><div class="cct">Thoughtfully Curated, Globally Connected</div><div class="ccb">San Francisco is the proving ground. Success here enables expansion nationwide and eventually worldwide — a connected global society where thoughtfully curated communities move effortlessly between locations, always surrounded by driven, curious individuals at the forefront of innovation.</div></div>
+      <div class="ccard"><div class="ccn">04</div><span class="cctag">Citizens First</span><div class="cct">Health, Pensions, and Bold SciFi Ideas</div><div class="ccb">As revenue broadens, health insurance and pension funds integrate into the economic model — all citizens access quality healthcare and long-term financial security. Beyond that: bold SciFi-inspired infrastructure that has to be experienced in person to be fully understood.</div></div>
+    </div>
+    <div style="margin-top:48px;padding:36px;border:1px solid var(--bh);background:var(--s1)">
+      <div class="eye">Knowledge Graph × Coliving</div>
+      <div class="two" style="gap:36px;margin-top:20px">
+        <div class="sbody"><p>The coliving layer isn't separate from the knowledge graph — it's the <strong>richest shard in the system</strong>. Residents accumulate context across months and years. Their tacit knowledge, social relationships, and IRL history become the highest-value nodes in the graph — irreducible to any API call.</p><p>The Ethereum L2 makes residency legible and portable: governance participation, skill attestations, community contributions, and inter-city travel history are composable, owned by the citizen, not the platform.</p></div>
+        <div>
+          <div class="ibox"><p><strong>Resident shard:</strong> Long-form knowledge profile spanning projects, relationships, skills, governance contributions, and community memory. Persistent across all network cities.</p></div>
+          <div class="ibox" style="border-left-color:var(--purple)"><p><strong>Ethereum L2:</strong> Censorship-resistant governance, voting, and citizen interaction. The constitution is the meta-ontology. The chain is the enforcement layer.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div"></div>
+
+<section id="mvp">
+  <div class="con">
+    <div class="eye">The Knowledge Graph Vision</div>
+    <h2 class="stit">ALL 16 FLOORS,<br><span class="go">ONE ECOLOGY</span></h2>
+    <div class="sbody"><p>Frontier Tower's knowledge graph is built for the whole building from day one — not a pilot, not a single floor experiment. Every community gets a shard. Every connection gets a bridge. The full semantic layer activates together.</p></div>
+    <div class="mcols rev">
+      <div>
+        <div class="mch">The Knowledge Graph</div>
+        <div class="mitems">
+          <div class="mi"><strong>16 floor shards</strong> — each with sovereign knowledge graphs, local ontologies, and community-controlled visibility settings in Bonfires.ai</div>
+          <div class="mi"><strong>People, projects, and events</strong> mapped across every floor with interests, needs, offers, and relationship trails</div>
+          <div class="mi"><strong>Cross-floor bridges</strong> surfaced by daemons — F9 ↔ F14, F8 ↔ F11, F12 ↔ F10, and many more waiting to be activated</div>
+          <div class="mi"><strong>Daemon network</strong> — orientation, matchmaking, translation, and memory agents operating across all floors simultaneously</div>
+          <div class="mi"><strong>This hyperblog</strong> as the narrative-semantic interface: the graph made legible for humans, machines, and new arrivals alike</div>
+          <div class="mi"><strong>Event trails and outcome capture</strong> — every hackathon, salon, and workshop feeds the collective memory layer</div>
+        </div>
+      </div>
+      <div>
+        <div class="mch">What Comes Next</div>
+        <div class="mitems">
+          <div class="mi"><strong>Mobile interface</strong> with QR-triggered shard discovery and location-based quest activation throughout the tower</div>
+          <div class="mi"><strong>XR overlay</strong> — spatial web layer visible through device cameras; hover a person or room to surface their live shard</div>
+          <div class="mi"><strong>Ethereum L2 integration</strong> — on-chain governance participation, skill attestations, and citizen passports</div>
+          <div class="mi"><strong>Coliving resident shards</strong> — long-form persistent knowledge profiles that travel with citizens across network cities</div>
+          <div class="mi"><strong>Per-floor hyperblogs</strong> — each floor gets its own deep-dive narrative interface and standalone knowledge graph view</div>
+          <div class="mi"><strong>Inter-city federation</strong> — as new locations open, each becomes a federated node in the growing network society</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="man">
+  <div class="mantt">MULTIPLE VALID<br>REALITIES,<br><span class="go">MEETING WITHOUT ERASURE</span></div>
+  <p class="manb">Not just knowledge graphs. Not just gamification. Not just XR. A system where multiple valid realities can meet — without one having to erase the others. San Francisco is just the beginning.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <a href="#building" class="btn btng">Explore All 16 Floors</a>
+    <a href="https://bonfires.ai" class="btn btnd" target="_blank">Bonfires.ai →</a>
+  </div>
+</div>
+
+<footer>
+  <div class="fl">FRONTIER TOWER SF · FEDERATED KNOWLEDGE ECOLOGY · BONFIRES.AI</div>
+  <div class="fr"><a href="#building">Building</a><a href="#graph">Graph</a><a href="#architecture">Architecture</a><a href="#philosophy">Philosophy</a><a href="#coliving">Coliving</a></div>
+</footer>
+
+<!-- DAEMON -->
+<div class="dwrap">
+  <div class="dbox" id="dbox">
+    <div class="dhead"><div class="ddot"></div><div class="dtit">Frontier Tower Daemon · Active</div></div>
+    <div class="dmsgs" id="dmsgs"><div class="dm sys">Navigating 16 floors. I can help you find cross-floor bridges, interpret tensions, match collaborators, or explain any layer of the architecture.<br><br>What are you looking for?</div></div>
+    <div class="dpills" id="dpills">
+      <button class="dp" onclick="pill(this)">best floor for AI builders?</button>
+      <button class="dp" onclick="pill(this)">F8 + F11 bridge</button>
+      <button class="dp" onclick="pill(this)">what is paraconsistency?</button>
+      <button class="dp" onclick="pill(this)">coliving + knowledge graph?</button>
+    </div>
+    <div class="drow">
+      <input class="din" id="din" placeholder="ask the daemon..." onkeydown="if(event.key==='Enter')ds()">
+      <button class="dsend" onclick="ds()">→</button>
+    </div>
+  </div>
+  <button class="dbtn" onclick="dt()">⟁</button>
+</div>
+
+<script>
+// PROGRESS
+window.addEventListener('scroll',()=>{document.getElementById('prog').style.width=(scrollY/(document.body.scrollHeight-innerHeight)*100)+'%';});
+
+// REVEAL
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.08});
+document.querySelectorAll('.rev').forEach(el=>ro.observe(el));
+
+// FLOORS
+const floors=[
+  {n:16,name:'d/acc Lounge',type:'Community',color:'#f0c040',
+   desc:'Cross-pollination to advance humanity. Top floor for all communities to mingle and spark breakthrough ideas. Coffee, drinks, investor meetings, casual genius.',
+   tags:['cross-pollination','d/acc','community','investors','synthesis'],
+   nodes:28,
+   know:['Breakthrough idea generation','Investor + founder collision','Cross-floor synthesis sessions','Weekly d/acc salon curation'],
+   proj:['Open ideas board','Inter-floor connector events','Weekly lightning talks','Frontier Thesis project'],
+   themes:['Decentralized acceleration','Collective intelligence','Cross-domain synthesis','Civilizational stakes'],
+   q:'The goal: cross-pollination to advance humanity. Every other floor flows here eventually.'},
+  {n:15,name:'Coworking & The Library',type:'Focus',color:'#40c8ff',
+   desc:'Deep work without interruption. 4-hour focus sessions, noise-cancelling headphones, clean execution. Sometimes you just need to ship.',
+   tags:['deep work','library','focus','execution','research'],
+   nodes:12,
+   know:['Focus state documentation','Research library curation','Quiet collaboration norms','Knowledge artifact repository'],
+   proj:['Distributed reading list','Floor knowledge commons','Async collaboration protocols'],
+   themes:['Deep work','Knowledge stewardship','Execution culture','Signal-to-noise'],
+   q:'Put on your noise-cancelling headphones and hammer away. Great ideas need great execution.'},
+  {n:14,name:'Human Flourishing',type:'Systems',color:'#40ff96',
+   desc:'Aligning flourishing, sense-making, and coordination — powered by frontier tech — to build resilient, life-centered systems rooted in wisdom, regeneration, and collective well-being.',
+   tags:['flourishing','sense-making','coordination','regeneration','wisdom'],
+   nodes:34,
+   know:['Collective sense-making frameworks','Well-being metrics + biomarkers','Regenerative system design','Wisdom traditions integration'],
+   proj:['Semantic Field deployment','Flourishing index','Care coordination AI','Trauma-informed design'],
+   themes:['Life-centered systems','Wisdom + technology','Collective well-being','Regenerative coordination'],
+   q:'The intersection where frontier tech becomes civilizationally wise rather than merely powerful.'},
+  {n:12,name:'Ethereum & Decentralized Tech',type:'Web3',color:'#9060ff',
+   desc:'Shape the future of finance with blockchain, DeFi, Layer 2 solutions, and Real World Assets. Drive decentralization and explore how Web3 can transform industries.',
+   tags:['ethereum','DeFi','L2','RWA','Web3','cypherpunk'],
+   nodes:31,
+   know:['DeFi protocol research','L2 architecture patterns','RWA tokenization frameworks','Governance system design'],
+   proj:['Frontier Tower L2 (governance)','Citizen passport protocol','RWA + real estate integration','DAO constitution'],
+   themes:['Censorship resistance','Permissionless systems','Decentralized governance','Digital property rights'],
+   q:'The cypherpunk backbone of the entire network society. This floor builds the rails.'},
+  {n:11,name:'Longevity and Health',type:'Biotech',color:'#ff6b4a',
+   desc:'Work towards a longer, healthier life. Aging research, longevity biotech, optimized health habits, accelerated clinical trials, and cutting-edge biomarker tracking.',
+   tags:['longevity','biotech','aging','biomarkers','clinical trials'],
+   nodes:26,
+   know:['Aging biology research','Biomarker protocols','Clinical trial design','Personalized medicine frameworks'],
+   proj:['Longevity data commons','Accelerated trial platform','Biomarker dashboard','Community health protocol'],
+   themes:['Radical life extension','Personalized medicine','Aging mechanisms','Health optimization'],
+   q:'Not just longer life — better life. The metrics of flourishing start here.'},
+  {n:10,name:'Frontier @ Accelerate',type:'Venture',color:'#f0c040',
+   desc:'The best founders, builders, and VCs from Silicon Valley and beyond. Lasting relationships, top investor access, and project acceleration at the frontier of technology.',
+   tags:['founders','investors','VC','acceleration','dealflow'],
+   nodes:22,
+   know:['Founder-VC matching','Due diligence frameworks','Startup trajectory mapping','Network intelligence'],
+   proj:['Accelerator cohort tracking','Investor thesis graph','Founder relationship map','Deal flow commons'],
+   themes:['Capital formation','Founder networks','Technology frontiers','Venture ecosystems'],
+   q:'Where the builders meet the backers. The capital layer of the knowledge ecology.'},
+  {n:9,name:'AI and Autonomous Systems',type:'AI',color:'#40c8ff',
+   desc:'From multi-agent models to transformer architectures, push AI innovation forward. Build, experiment, and redefine the future of intelligence — hardware included.',
+   tags:['AI','multi-agent','transformers','hardware','autonomy'],
+   nodes:47,
+   know:['Multi-agent system design','Architecture benchmarking','Hardware-software co-design','AI safety + alignment'],
+   proj:['Bonfires.ai integration','Autonomous agent protocols','Hardware acceleration research','Floor-wide AI infrastructure'],
+   themes:['Machine intelligence','Autonomous systems','Foundation models','AI hardware'],
+   q:'The intelligence engine of the building. Every floor uses what this floor builds.'},
+  {n:8,name:'Neuro and Biotech',type:'Science',color:'#ff4af0',
+   desc:'BSL-2 lab access for gene editing, synthetic biology, and personalized medicine. A lab away from work for pioneers ready to push biological frontiers.',
+   tags:['neuroscience','gene editing','synthetic bio','BSL-2','personalized medicine'],
+   nodes:29,
+   know:['Gene editing protocols','Neurotech research','Synthetic biology frameworks','Bioethics + safety'],
+   proj:['Open lab protocols','Neuro-longevity bridge (F11)','CRISPR research commons','Biomarker development'],
+   themes:['Genetic medicine','Neurotechnology','Synthetic biology','Biological enhancement'],
+   q:'Where biology becomes programmable. The BSL-2 lab bridges imagination and reality.'},
+  {n:7,name:'Frontier Makerspace',type:'Hardware',color:'#ff6b4a',
+   desc:'Laser cutters, CNC machines, woodwork, 3D printers, microelectronics. Everything needed to convert imagination into hardware. The world is far from digital-only.',
+   tags:['makerspace','hardware','3D printing','CNC','electronics','fabrication'],
+   nodes:18,
+   know:['Fabrication methodologies','Rapid prototyping frameworks','Hardware design patterns','Materials science'],
+   proj:['Hardware prototyping commons','Open source toolchains','Maker documentation library','IRL artifact archive'],
+   themes:['Physical fabrication','Hardware innovation','Digital-physical synthesis','Maker culture'],
+   q:'The world is far from digital only. This floor gives you all the tools to enhance your IRL experience.'},
+  {n:6,name:'Art and Music',type:'Creative',color:'#f0c040',
+   desc:'Immersive experiences, digital installations, and cross-disciplinary projects merging art and technology. Frontier Tower thrives on creative expression.',
+   tags:['art','music','installations','creative tech','immersive','generative'],
+   nodes:21,
+   know:['Generative art techniques','Immersive experience design','Cross-disciplinary collaboration','Art + tech integration'],
+   proj:['Tower audio-visual identity','Generative installation series','Artist-in-residence program','Creative AI experiments'],
+   themes:['Generative art','Immersive media','Creative technology','Cultural expression'],
+   q:"Where the building gets a soul. Art makes the knowledge ecology legible to the body, not just the mind."},
+  {n:5,name:'Movement & Fitness Center',type:'Wellness',color:'#40ff96',
+   desc:'Gym, yoga, sauna, cold plunge. Recharge your mental and physical well-being. Take care of the hardware running all the software.',
+   tags:['fitness','gym','yoga','sauna','cold plunge','wellness'],
+   nodes:10,
+   know:['Performance optimization','Recovery protocols','Mind-body integration','Wellness biomarkers'],
+   proj:['Community wellness protocol','Biometric data commons','F11 longevity bridge','Movement as practice'],
+   themes:['Physical optimization','Mind-body unity','Recovery science','Somatic intelligence'],
+   q:'The soma grounds the system. Floor 5 is where you remember you have a body.'},
+  {n:4,name:'Robotics & Hard Tech',type:'Hardware',color:'#ff6b4a',
+   desc:'Next-gen robotics, advanced hardware, and breakthrough materials. Turn ideas into reality with the tools and network to bring projects to life.',
+   tags:['robotics','hardware','materials','deep tech','R&D'],
+   nodes:24,
+   know:['Robotics architecture','Advanced materials research','Deep tech development cycles','Hardware-AI integration'],
+   proj:['Open robotics platform','Materials innovation commons','Hardware accelerator','Robot + AI stack integration'],
+   themes:['Physical automation','Hard technology','Advanced manufacturing','Deep tech research'],
+   q:"Where the physical world gets upgraded. Robots don't replace builders — they extend them."},
+  {n:3,name:'Private Offices',type:'Offices',color:'#40c8ff',
+   desc:'For when an idea evolves into a business. Offices for teams up to 20. Graduate from coworking into your own space within the same community.',
+   tags:['private offices','startups','teams','growth','scaling'],
+   nodes:14,
+   know:['Startup operational patterns','Team knowledge systems','Product development cycles','Company building frameworks'],
+   proj:['Tenant knowledge commons','Cross-tenant collaboration map','Office-to-floor bridge protocols'],
+   themes:['Company building','Team dynamics','Startup scaling','Operational intelligence'],
+   q:'The bridge between idea and institution. Where communities become companies.'},
+  {n:2,name:'Event & Hackathon Space',type:'Events',color:'#9060ff',
+   desc:'Industrial-looking space with high ceilings and top-tier tech gadgets. Host events, workshops, and hackathons. Ideas come to life and minds connect.',
+   tags:['events','hackathons','workshops','community','industrial'],
+   nodes:16,
+   know:['Event knowledge capture','Hackathon outcome tracking','Community activation patterns','Cross-floor event trails'],
+   proj:['Hackathon knowledge archive','Event-to-project pipeline','Community ritual design','Frontier Tower calendar'],
+   themes:['Live collaboration','Knowledge generation','Community rituals','Collective intelligence activation'],
+   q:'Where the graph gets activated in real-time. Every hackathon is a node-generation event.'},
+  {n:1,name:'Ground Floor — Entrance',type:'Commons',color:'#f0c040',
+   desc:"Welcome to the heart of it all. Your journey begins here — step inside, connect, and experience the energy. Whether you're here to work, live, or innovate, it all starts at the entrance.",
+   tags:['entrance','welcome','commons','orientation','first contact'],
+   nodes:8,
+   know:['Visitor orientation','Community welcome protocols','Building-wide wayfinding','First impressions + onboarding'],
+   proj:['Orientation daemon','Visitor knowledge trail','Building identity system','QR shard activation at entry'],
+   themes:['First contact','Community onboarding','Spatial orientation','Building as invitation'],
+   q:'The daemon starts here. Every journey through 16 floors begins at Ground.'},
+];
+
+const fl=document.getElementById('floorList');
+floors.forEach(f=>{
+  const row=document.createElement('div');
+  row.className='frow'; row.style.setProperty('--fc',f.color);
+  row.innerHTML=`<div class="fn">${f.n}</div><div class="ft"><div class="ftb" style="border-color:${f.color}30;color:${f.color};background:${f.color}10">${f.type}</div></div><div class="fb"><div class="fname">${f.name}</div><div class="fdesc">${f.desc}</div><div class="ftags">${f.tags.map(t=>`<span class="ftg">${t}</span>`).join('')}</div></div><div class="fm"><div class="fmv" style="color:${f.color}">${f.nodes}</div><div class="fml">nodes</div></div>`;
+  row.addEventListener('click',()=>{
+    const was=row.classList.contains('act');
+    document.querySelectorAll('.frow').forEach(r=>r.classList.remove('act'));
+    document.querySelectorAll('.fdet').forEach(d=>d.remove());
+    if(!was){
+      row.classList.add('act');
+      const det=document.createElement('div'); det.className='fdet open'; det.style.borderColor=f.color+'40';
+      det.innerHTML=`<div class="fdgrid"><div><div class="fdct">Knowledge Nodes</div><ul class="fdl">${f.know.map(k=>`<li>${k}</li>`).join('')}</ul></div><div><div class="fdct">Active Projects</div><ul class="fdl">${f.proj.map(p=>`<li>${p}</li>`).join('')}</ul></div><div><div class="fdct">Core Themes</div><ul class="fdl">${f.themes.map(t=>`<li>${t}</li>`).join('')}</ul></div><div class="fdq" style="border-color:${f.color}">${f.q}</div></div>`;
+      row.after(det);
+      setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+    }
+  });
+  fl.appendChild(row);
+});
+
+// PHIL TABS
+function st(btn,id){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('act'));
+  document.querySelectorAll('.ppanel').forEach(p=>p.classList.remove('act'));
+  btn.classList.add('act'); document.getElementById(id).classList.add('act');
+}
+
+// HERO CANVAS
+const hc=document.getElementById('hc'),hx=hc.getContext('2d');
+function rh(){hc.width=hc.offsetWidth;hc.height=hc.offsetHeight;}
+rh(); window.addEventListener('resize',rh);
+const pts=Array.from({length:70},()=>({x:Math.random()*hc.width,y:Math.random()*hc.height,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.2+.4}));
+function dh(){
+  hx.clearRect(0,0,hc.width,hc.height);
+  pts.forEach(p=>{p.x=(p.x+p.vx+hc.width)%hc.width;p.y=(p.y+p.vy+hc.height)%hc.height;});
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+    const d=Math.hypot(pts[i].x-pts[j].x,pts[i].y-pts[j].y);
+    if(d<110){hx.beginPath();hx.moveTo(pts[i].x,pts[i].y);hx.lineTo(pts[j].x,pts[j].y);hx.strokeStyle=`rgba(240,192,64,${.06*(1-d/110)})`;hx.lineWidth=.5;hx.stroke();}
+  }
+  pts.forEach(p=>{hx.beginPath();hx.arc(p.x,p.y,p.r,0,Math.PI*2);hx.fillStyle='rgba(240,192,64,.2)';hx.fill();});
+  requestAnimationFrame(dh);
+}
+dh();
+
+// KNOWLEDGE GRAPH
+const gc=document.getElementById('gc'),gx=gc.getContext('2d');
+function rg2(){gc.width=gc.parentElement.clientWidth;gc.height=560;}
+rg2(); window.addEventListener('resize',rg2);
+let gz=1,gpx=0,gpy=0,gdr=false,glx=0,gly=0,ghov=null,gph=true;
+const gtip=document.getElementById('gtip');
+const nc={floor:'#f0c040',theme:'#40c8ff',project:'#40ff96',daemon:'#ff60a0',bridge:'#9060ff'};
+
+const gn=[
+  {id:0,l:'F16 d/acc',t:'floor',x:540,y:90,r:18,d:'Cross-pollination hub. All communities converge here for breakthrough synthesis and civilizational ideas.'},
+  {id:1,l:'F15 Library',t:'floor',x:730,y:140,r:11,d:'Deep work and knowledge repository. Quiet execution culture.'},
+  {id:2,l:'F14 Flourishing',t:'floor',x:780,y:260,r:16,d:'Life-centered systems, wisdom+tech, collective well-being, regenerative coordination.'},
+  {id:3,l:'F12 Ethereum',t:'floor',x:740,y:390,r:14,d:'Blockchain, DeFi, L2 solutions, RWA. Cypherpunk backbone of the network society.'},
+  {id:4,l:'F11 Longevity',t:'floor',x:600,y:460,r:14,d:'Aging research, longevity biotech, biomarker tracking, accelerated clinical trials.'},
+  {id:5,l:'F10 Accelerate',t:'floor',x:440,y:480,r:14,d:'Top founders, builders, VCs. Where capital meets frontier technology.'},
+  {id:6,l:'F9 AI Systems',t:'floor',x:270,y:420,r:18,d:'Multi-agent models, transformers, hardware. The intelligence engine of the building.'},
+  {id:7,l:'F8 Neuro/Biotech',t:'floor',x:170,y:300,r:14,d:'BSL-2 lab. Gene editing, synthetic biology, personalized medicine.'},
+  {id:8,l:'F7 Makerspace',t:'floor',x:180,y:170,r:12,d:'Laser cutters, CNC, 3D printers, electronics. Imagination to hardware.'},
+  {id:9,l:'F6 Art + Music',t:'floor',x:320,y:100,r:12,d:"Immersive experiences, digital installations. The building's soul."},
+  {id:10,l:'F5 Movement',t:'floor',x:450,y:60,r:10,d:'Gym, yoga, sauna, cold plunge. The soma grounds the system.'},
+  {id:11,l:'F4 Robotics',t:'floor',x:610,y:60,r:12,d:'Hard tech, robotics, advanced materials. Physical world upgraded.'},
+  {id:12,l:'F3 Offices',t:'floor',x:340,y:200,r:10,d:'Private offices for growing teams up to 20. Idea → company.'},
+  {id:13,l:'F2 Events',t:'floor',x:450,y:280,r:12,d:'Industrial hackathon space. Where the graph activates in real-time.'},
+  {id:14,l:'F1 Entrance',t:'floor',x:550,y:300,r:11,d:'Ground floor. Orientation daemon activated. Every journey begins here.'},
+  {id:15,l:'Bonfires.ai',t:'project',x:530,y:240,r:13,d:'Graph substrate for Frontier Tower. Collaborative knowledge curation platform.'},
+  {id:16,l:'ETH L2',t:'project',x:660,y:320,r:11,d:"Frontier Tower's own Ethereum L2. Censorship-resistant governance, voting, citizen passports."},
+  {id:17,l:'Paraconsistency',t:'theme',x:110,y:190,r:10,d:'Cross-floor contradiction tolerance. Tensions become inquiry zones, not failures.'},
+  {id:18,l:'Dependent Arising',t:'theme',x:90,y:360,r:9,d:"Nāgārjuna's framework: every node's meaning is relational, never self-contained."},
+  {id:19,l:'Rhizome',t:'theme',x:160,y:490,r:9,d:'Deleuze+Guattari: acentric connective multiplicity. Any floor to any floor.'},
+  {id:20,l:'Orientation',t:'daemon',x:440,y:170,r:9,d:'Daemon: Helps newcomers navigate the tower and activate their first shard connections.'},
+  {id:21,l:'Translation',t:'daemon',x:340,y:360,r:9,d:'Daemon: Surfaces semantic distance between floors and quantifies translation cost.'},
+  {id:22,l:'Memory',t:'daemon',x:640,y:210,r:9,d:'Daemon: Maintains event trails and knowledge continuity across floors and time.'},
+  {id:23,l:'IRL Bridge',t:'bridge',x:470,y:390,r:8,d:'Physical-digital bridge: IRL quests, real conversations, and tacit knowledge as graph fuel.'},
+  {id:24,l:'Network Society',t:'theme',x:780,y:490,r:10,d:'The inter-city coliving vision: SF → global. Curated communities moving between federated nodes.'},
+];
+
+const ge=[[0,1],[0,2],[0,6],[0,9],[0,10],[0,13],[0,15],[2,14],[2,15],[2,21],[3,16],[3,15],[4,7],[4,15],[5,6],[5,15],[6,17],[6,18],[6,15],[7,18],[7,17],[8,12],[9,20],[10,20],[13,23],[14,20],[14,21],[15,22],[16,24],[17,18],[17,21],[18,19],[19,21],[6,21],[2,21],[0,22],[2,22],[1,15],[11,8],[4,11],[3,24],[5,24],[23,15],[23,21]];
+gn.forEach(n=>{n.vx=0;n.vy=0;});
+
+function gfx(){
+  if(!gph)return;
+  const k=.015,rest=110,rep=3200,damp=.86;
+  ge.forEach(([a,b])=>{const na=gn[a],nb=gn[b],dx=nb.x-na.x,dy=nb.y-na.y,d=Math.hypot(dx,dy)||1,f=(d-rest)*k;na.vx+=f*dx/d;na.vy+=f*dy/d;nb.vx-=f*dx/d;nb.vy-=f*dy/d;});
+  for(let i=0;i<gn.length;i++)for(let j=i+1;j<gn.length;j++){const na=gn[i],nb=gn[j],dx=nb.x-na.x,dy=nb.y-na.y,d2=dx*dx+dy*dy||1,d=Math.sqrt(d2),f=rep/d2;na.vx-=f*dx/d;na.vy-=f*dy/d;nb.vx+=f*dx/d;nb.vy+=f*dy/d;}
+  const cx=gc.width/2,cy=gc.height/2;
+  gn.forEach(n=>{n.vx+=(cx-n.x)*.0008;n.vy+=(cy-n.y)*.0008;n.vx*=damp;n.vy*=damp;n.x=Math.max(n.r+8,Math.min(gc.width-n.r-8,n.x+n.vx));n.y=Math.max(n.r+8,Math.min(gc.height-n.r-8,n.y+n.vy));});
+}
+
+function dg(){
+  gx.clearRect(0,0,gc.width,gc.height);
+  gx.save();gx.translate(gpx,gpy);gx.scale(gz,gz);
+  ge.forEach(([a,b])=>{const na=gn[a],nb=gn[b],hot=ghov&&(ghov.id===a||ghov.id===b);gx.beginPath();gx.moveTo(na.x,na.y);gx.lineTo(nb.x,nb.y);gx.strokeStyle=hot?'rgba(240,192,64,.4)':'rgba(255,255,255,.055)';gx.lineWidth=hot?1.4:.7;gx.stroke();});
+  gn.forEach(n=>{
+    const col=nc[n.t]||'#fff',hot=ghov&&ghov.id===n.id;
+    if(hot){gx.beginPath();gx.arc(n.x,n.y,n.r*3.5,0,Math.PI*2);gx.fillStyle=col+'16';gx.fill();}
+    gx.beginPath();gx.arc(n.x,n.y,n.r+(hot?2:0),0,Math.PI*2);gx.fillStyle='rgba(8,9,11,.9)';gx.fill();gx.strokeStyle=col;gx.lineWidth=hot?2:1.2;gx.stroke();
+    gx.beginPath();gx.arc(n.x,n.y,n.r*.3,0,Math.PI*2);gx.fillStyle=col;gx.globalAlpha=.6;gx.fill();gx.globalAlpha=1;
+    gx.fillStyle=hot?'#eef2f7':'rgba(74,90,106,.9)';
+    gx.font=`${hot?10:9}px "IBM Plex Mono",monospace`;gx.textAlign='center';
+    gx.fillText(n.l.length>18?n.l.substring(0,17)+'…':n.l,n.x,n.y+n.r+12);
+  });
+  gx.restore();gfx();requestAnimationFrame(dg);
+}
+dg();
+
+gc.addEventListener('mousemove',e=>{
+  const r=gc.getBoundingClientRect(),mx=(e.clientX-r.left-gpx)/gz,my=(e.clientY-r.top-gpy)/gz;
+  if(gdr){gpx+=e.clientX-glx;gpy+=e.clientY-gly;glx=e.clientX;gly=e.clientY;return;}
+  ghov=null; for(const n of gn){if(Math.hypot(mx-n.x,my-n.y)<n.r+6){ghov=n;break;}}
+  if(ghov){gtip.style.display='block';gtip.style.left=e.clientX+12+'px';gtip.style.top=e.clientY-10+'px';gtip.innerHTML=`<strong style="color:${nc[ghov.t]||'#f0c040'}">${ghov.l}</strong><br><span style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--td)">${ghov.t}</span><br><br><span style="font-size:11px">${ghov.d}</span>`;gc.style.cursor='pointer';}
+  else{gtip.style.display='none';gc.style.cursor='crosshair';}
+});
+gc.addEventListener('mousedown',e=>{if(!ghov){gdr=true;glx=e.clientX;gly=e.clientY;}});
+gc.addEventListener('mouseup',()=>gdr=false);
+gc.addEventListener('mouseleave',()=>{gdr=false;gtip.style.display='none';});
+gc.addEventListener('click',()=>{if(ghov){am('sys',`<strong style="color:${nc[ghov.t]}">${ghov.l}</strong><br><em style="font-size:9px;text-transform:uppercase;letter-spacing:.1em">${ghov.t}</em><br><br>${ghov.d}`);document.getElementById('dbox').classList.add('open');}});
+gc.addEventListener('wheel',e=>{e.preventDefault();gz=Math.max(.35,Math.min(3,gz*(e.deltaY>0?.88:1.14)));});
+function rg(){gz=1;gpx=0;gpy=0;}
+function zi(){gz=Math.min(3,gz*1.2);}
+function zo(){gz=Math.max(.35,gz*.8);}
+function tp(){gph=!gph;document.getElementById('pb').textContent=gph?'⏸':'▶';}
+
+// DAEMON
+const dr={
+  'ai builder|floor.*9|f9':'Best floors for AI builders: <strong>F9 (AI + Autonomous Systems)</strong> is the core — multi-agent models, transformer research, hardware. But the most interesting bridges are with <strong>F14 (Flourishing)</strong> via care coordination AI, and <strong>F8 (Neuro/Biotech)</strong> via brain-computer interfaces.',
+  'f8.*f11|f11.*f8|longevity.*neuro|neuro.*longevity':'F8 (Neuro/Biotech) × F11 (Longevity) is one of the highest-potential dormant bridges in the building. Shared themes: biomarkers, personalized medicine, aging mechanisms. Translation cost: low to moderate. Recommended action: shared project on biomarker standardization.',
+  'paraconsisten':'Paraconsistency is the logical backbone for Frontier Tower\'s ontological plurality. When two floors define the same concept differently, classical logic would "explode." Paraconsistent logic localizes contradictions. The tension between F9\'s "intelligence" and F14\'s becomes an inquiry zone, not a system error.',
+  'coliving|resident|l2|ethereum':'The coliving layer is the richest shard in the system. Residents accumulate months of context — tacit knowledge, relationships, governance participation. The Ethereum L2 makes this portable across cities. Leipzig proved the model works for 9 years with zero intervention.',
+  default:'Navigating the semantic ecology… This concept appears across multiple floor shards with different framings. Would you like me to surface the cross-floor tensions, map translation cost, or find the most active related nodes?'
+};
+
+function dt(){document.getElementById('dbox').classList.toggle('open');}
+function am(type,html){const m=document.getElementById('dmsgs'),d=document.createElement('div');d.className=`dm ${type}`;d.innerHTML=html;m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function ds(){
+  const inp=document.getElementById('din'),t=inp.value.trim();if(!t)return;
+  am('usr',t);inp.value='';document.getElementById('dbox').classList.add('open');
+  setTimeout(()=>{const k=Object.keys(dr).find(k=>k!=='default'&&new RegExp(k,'i').test(t));am('sys',dr[k]||dr.default);},480);
+}
+function pill(btn){document.getElementById('din').value=btn.textContent;document.getElementById('dbox').classList.add('open');ds();btn.remove();}
+</script>
+</body>
+</html>
